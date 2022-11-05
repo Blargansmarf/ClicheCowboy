@@ -1,19 +1,18 @@
 extends KinematicBody2D
 
-export (int) var speed = 150
+export (int) var speed = 100
+export (float) var shootCooldown = 1.0
 
 var velocity = Vector2()
+var canShoot = true
+var shoot = false
+var shootDelta = 0.0
 
 onready var collider = $CollisionShape2D
 onready var sprite = $AnimatedSprite
 
-onready var bulletScn = preload("res://scenes/bullet.tscn")
-var bullet
-var bulletAlive
-
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	bulletAlive = false
 	pass # Replace with function body.
 
 
@@ -22,14 +21,14 @@ func _ready():
 #	pass
 
 func _physics_process(delta):
-	print(position)
+	if !canShoot:
+		shootDelta += delta
+		if shootDelta >= shootCooldown:
+			canShoot = true
+			shootDelta = 0.0
 	
 	player_input()
 	velocity = move_and_slide(velocity)
-	
-	if bullet and !bullet.alive:
-		bullet.queue_free()
-		bullet = null
 
 func player_input():
 	#movement logic
@@ -45,8 +44,6 @@ func player_input():
 	velocity = velocity.normalized() * speed
 	
 	#bullet logic
-	if Input.is_action_just_pressed("leftclick") and !bullet:
-		bullet = bulletScn.instance()
-		bullet.position = position + Vector2(20, 0)
-		bullet.init_stats(200, Vector2(1, 0), 1, 3)
-		add_child(bullet)
+	if Input.is_action_pressed("leftclick") and canShoot:
+		shoot = true
+		canShoot = false
