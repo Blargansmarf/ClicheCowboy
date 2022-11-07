@@ -1,11 +1,12 @@
 extends KinematicBody2D
 
 export (int) var speed = 100
-export (float) var shootCooldown = 1.0
+export (float) var shootCooldown = .1
 
 var velocity = Vector2()
 var canShoot = true
 var shoot = false
+var shootDir = Vector2()
 var shootDelta = 0.0
 
 onready var collider = $CollisionShape2D
@@ -44,6 +45,31 @@ func player_input():
 	velocity = velocity.normalized() * speed
 	
 	#bullet logic
-	if Input.is_action_pressed("leftclick") and canShoot:
-		shoot = true
-		canShoot = false
+	if canShoot:
+		if Input.is_action_pressed("shoot_up"):
+			canShoot = false
+			shoot = true
+			if Input.is_action_pressed("shoot_left") and !Input.is_action_pressed("shoot_right") and !Input.is_action_pressed("shoot_down"):
+				shootDir = Vector2(-1, -1)
+			elif Input.is_action_pressed("shoot_right") and !Input.is_action_pressed("shoot_left") and !Input.is_action_pressed("shoot_down"):
+				shootDir = Vector2(1, -1)
+			else:
+				shootDir = Vector2(0, -1)
+		elif Input.is_action_pressed("shoot_down"):
+			canShoot = false
+			shoot = true
+			if Input.is_action_pressed("shoot_left") and !Input.is_action_pressed("shoot_right") and !Input.is_action_pressed("shoot_up"):
+				shootDir = Vector2(-1, 1)
+			elif Input.is_action_pressed("shoot_right") and !Input.is_action_pressed("shoot_left") and !Input.is_action_pressed("shoot_up"):
+				shootDir = Vector2(1, 1)
+			else:
+				shootDir = Vector2(0, 1)
+		elif Input.is_action_pressed("shoot_right"):
+			canShoot = false
+			shoot = true
+			shootDir = Vector2(1, 0)
+		elif Input.is_action_pressed("shoot_left"):
+			canShoot = false
+			shoot = true
+			shootDir = Vector2(-1, 0)
+	

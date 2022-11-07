@@ -21,7 +21,7 @@ func _physics_process(delta):
 		player.shoot = false
 		bullets.append(bulletScn.instance())
 		bullets[-1].position = player.position
-		bullets[-1].init_stats(200, Vector2(1, 0), 1, 2)
+		bullets[-1].init_stats(200, player.shootDir, 1, 2)
 		add_child(bullets[-1])
 	
 	if !bullets.empty():
