@@ -18,9 +18,17 @@ func init_stats(spd, vel, dmg, t):
 	alive = true
 
 func _physics_process(delta):
-	time -= delta
-	if time <= 0:
-		alive = false
-		pass
-	velocity = velocity.normalized() * speed
-	velocity = move_and_slide(velocity)
+	if alive:
+		time -= delta
+		if time <= 0:
+			alive = false
+			pass
+		velocity = velocity.normalized() * speed
+		velocity = move_and_slide(velocity)
+		
+		for i in get_slide_count():
+			var collision = get_slide_collision(i)
+			if collision.collider.name == "Bandito":
+				alive = false
+				var enemyInstance = instance_from_id(collision.collider_id)
+				enemyInstance.health -= damage
