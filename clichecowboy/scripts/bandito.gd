@@ -17,9 +17,8 @@ func initStats(spd, hlth):
 func setDir(dir):
 	velocity = dir
 
-func _physics_process(delta):
+func _physics_process(_delta):
 	if alive:
-		print(health)
 		if health <= 0:
 			alive = false
 			pass

@@ -27,11 +27,7 @@ func _physics_process(delta):
 		if shootDelta >= shootCooldown:
 			canShoot = true
 			shootDelta = 0.0
-	
-	for i in get_slide_count():
-		var collision = get_slide_collision(i)
-		print("Collided with: ", collision.collider.name)
-	
+
 	player_input()
 	velocity = move_and_slide(velocity)
 
