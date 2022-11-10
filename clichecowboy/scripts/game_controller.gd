@@ -13,6 +13,7 @@ enum Thing {BULLET, ENEMY}
 #trash is stored as type, position
 var trash = []
 
+var paused = false
 var frameCount = 0
 export (int) var spawnRate = 60
 var rng = RandomNumberGenerator.new()
@@ -29,31 +30,39 @@ func _ready():
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
+# warning-ignore:unused_argument
 func _physics_process(delta):
-	frameCount+=1
-	if player.shoot:
-		player.shoot = false
-		bullets.append(bulletScn.instance())
-		bullets[-1].position = player.position
-		bullets[-1].init_stats(200, player.shootDir, 1, 2)
-		add_child(bullets[-1])
+	if !paused:
+		frameCount+=1
+		if player.shoot:
+			player.shoot = false
+			bullets.append(bulletScn.instance())
+			bullets[-1].position = player.position
+			bullets[-1].init_stats(200, player.shootDir, 1, 2)
+			add_child(bullets[-1])
+		
+		if !enemies.empty():
+			for e in enemies:
+				if !e.alive:
+					trash.append(Thing.ENEMY)
+					trash.append(enemies.find(e))
+				else:
+					var dir = getSlope(e.position, player.position)
+					e.setDir(dir)
+		if !bullets.empty():
+			for b in bullets:
+				if !b.alive:
+					trash.append(Thing.BULLET)
+					trash.append(bullets.find(b))
+		if frameCount % spawnRate == 0:
+			generateEnemy()
+		cleanUp()
 	
-	if !enemies.empty():
-		for e in enemies:
-			if !e.alive:
-				trash.append(Thing.ENEMY)
-				trash.append(enemies.find(e))
-			else:
-				var dir = getSlope(e.position, player.position)
-				e.setDir(dir)
-	if !bullets.empty():
-		for b in bullets:
-			if !b.alive:
-				trash.append(Thing.BULLET)
-				trash.append(bullets.find(b))
-	if frameCount % spawnRate == 0:
-		generateEnemy()
-	cleanUp()
+	if Input.is_action_just_pressed("pause"):
+		if paused:
+			unpauseGame()
+		elif !paused:
+			pauseGame()
 
 func getSlope(src, dest):
 	return dest - src
@@ -77,13 +86,34 @@ func generateEnemy():
 	enemies[-1].initStats(50, 1)
 	var loc = rng.randi_range(0, 3)
 	var pos = Vector2()
+	var playerPosDiff = player.position - screenSize/2
 	if  loc == 0:
-		pos = Vector2(rng.randi_range(-10, screenSize.x), -10)
+		pos = Vector2(rng.randi_range(-10, screenSize.x) + playerPosDiff.x, -10 + playerPosDiff.y)
 	elif loc == 1:
-		pos = Vector2(screenSize.x + 10, rng.randi_range(0, screenSize.y))
+		pos = Vector2(screenSize.x + 10 + playerPosDiff.x, rng.randi_range(0, screenSize.y) + playerPosDiff.y)
 	elif loc == 2:
-		pos = Vector2(rng.randi_range(-10, screenSize.x), screenSize.y + 10)
+		pos = Vector2(rng.randi_range(-10, screenSize.x) + playerPosDiff.x, screenSize.y + 10 + playerPosDiff.y)
 	else:
-		pos = Vector2(-10, rng.randi_range(0, screenSize.y))
+		pos = Vector2(-10 + playerPosDiff.x, rng.randi_range(0, screenSize.y) + playerPosDiff.y)
 	enemies[-1].position = pos
 	add_child(enemies[-1])
+	
+func pauseGame():
+	paused = true
+	player.paused = true
+	if !bullets.empty():
+		for b in bullets:
+			b.paused = true
+	if !enemies.empty():
+		for e in enemies:
+			e.paused = true
+	
+func unpauseGame():
+	paused = false
+	player.paused = false
+	if !bullets.empty():
+		for b in bullets:
+			b.paused = false
+	if !enemies.empty():
+		for e in enemies:
+			e.paused = false

@@ -5,6 +5,7 @@ var alive = false
 var velocity = Vector2()
 var damage = 0
 var time = 0
+var paused = false
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -18,7 +19,7 @@ func init_stats(spd, vel, dmg, t):
 	alive = true
 
 func _physics_process(delta):
-	if alive:
+	if alive and !paused:
 		time -= delta
 		if time <= 0:
 			alive = false

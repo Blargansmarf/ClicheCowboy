@@ -8,6 +8,7 @@ var canShoot = true
 var shoot = false
 var shootDir = Vector2()
 var shootDelta = 0.0
+var paused = false
 
 onready var collider = $CollisionShape2D
 onready var sprite = $AnimatedSprite
@@ -22,14 +23,15 @@ func _ready():
 #	pass
 
 func _physics_process(delta):
-	if !canShoot:
-		shootDelta += delta
-		if shootDelta >= shootCooldown:
-			canShoot = true
-			shootDelta = 0.0
+	if !paused:
+		if !canShoot:
+			shootDelta += delta
+			if shootDelta >= shootCooldown:
+				canShoot = true
+				shootDelta = 0.0
 
-	player_input()
-	velocity = move_and_slide(velocity)
+		player_input()
+		velocity = move_and_slide(velocity)
 
 func player_input():
 	#movement logic

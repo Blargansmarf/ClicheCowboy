@@ -5,6 +5,7 @@ export (int) var speed = 50
 var velocity = Vector2()
 var alive = true
 var health = 0
+var paused = false
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -18,7 +19,7 @@ func setDir(dir):
 	velocity = dir
 
 func _physics_process(_delta):
-	if alive:
+	if alive and !paused:
 		if health <= 0:
 			alive = false
 			pass
