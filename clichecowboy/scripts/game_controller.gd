@@ -59,7 +59,6 @@ func getSlope(src, dest):
 	return dest - src
 
 func cleanUp():
-	print(trash.size())
 	if !trash.empty():
 		if trash[0] == Thing.BULLET:
 			bullets[trash[1]].queue_free()

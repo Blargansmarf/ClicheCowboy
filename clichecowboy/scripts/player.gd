@@ -1,7 +1,7 @@
 extends KinematicBody2D
 
 export (int) var speed = 100
-export (float) var shootCooldown = .1
+export (float) var shootCooldown = 1
 
 var velocity = Vector2()
 var canShoot = true

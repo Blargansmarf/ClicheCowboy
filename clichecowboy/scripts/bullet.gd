@@ -28,7 +28,7 @@ func _physics_process(delta):
 		
 		for i in get_slide_count():
 			var collision = get_slide_collision(i)
-			if collision.collider.name == "Bandito":
+			if "Bandito" in collision.collider.name:
 				alive = false
 				var enemyInstance = instance_from_id(collision.collider_id)
 				enemyInstance.health -= damage
