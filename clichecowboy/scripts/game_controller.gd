@@ -14,6 +14,8 @@ enum Thing {BULLET, ENEMY}
 var trash = []
 
 var paused = false
+var hitFlip = false
+var dodgeFlip = false
 var frameCount = 0
 export (int) var spawnRate = 60
 var rng = RandomNumberGenerator.new()
@@ -33,6 +35,9 @@ func _ready():
 # warning-ignore:unused_argument
 func _physics_process(delta):
 	if !paused:
+		if Input.is_action_just_pressed("reset"):
+			get_tree().reload_current_scene()
+		
 		frameCount+=1
 		if player.shoot:
 			player.shoot = false
@@ -40,6 +45,30 @@ func _physics_process(delta):
 			bullets[-1].position = player.position
 			bullets[-1].init_stats(200, player.shootDir, 1, 2)
 			add_child(bullets[-1])
+		
+		if player.hit and !hitFlip:
+			print("ENEMY COLLISION OFF")
+			hitFlip = true
+			if !enemies.empty():
+				for e in enemies:
+					e.set_collision_mask_bit(0, false)
+		elif !player.hit and hitFlip:
+			print("COLLISIONS ON")
+			hitFlip = false
+			if !enemies.empty():
+				for e in enemies:
+					e.set_collision_mask_bit(0, true)
+		
+		if player.dodging and !dodgeFlip:
+			dodgeFlip = true
+			if !enemies.empty():
+				for e in enemies:
+					e.set_collision_mask_bit(0, false)
+		elif !player.dodging and dodgeFlip:
+			dodgeFlip = false
+			if !enemies.empty():
+				for e in enemies:
+					e.set_collision_mask_bit(0, true)
 		
 		if !enemies.empty():
 			for e in enemies:
@@ -96,6 +125,8 @@ func generateEnemy():
 	else:
 		pos = Vector2(-10 + playerPosDiff.x, rng.randi_range(0, screenSize.y) + playerPosDiff.y)
 	enemies[-1].position = pos
+	if hitFlip or dodgeFlip:
+		enemies[-1].set_collision_mask_bit(0, false)
 	add_child(enemies[-1])
 	
 func pauseGame():

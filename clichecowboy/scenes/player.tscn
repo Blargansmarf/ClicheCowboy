@@ -17,6 +17,7 @@ extents = Vector2( 5, 5 )
 [node name="Player" type="KinematicBody2D"]
 collision_mask = 12
 script = ExtResource( 1 )
+shootCooldown = 0.4
 
 [node name="AnimatedSprite" type="AnimatedSprite" parent="."]
 frames = SubResource( 1 )
