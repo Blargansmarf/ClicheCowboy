@@ -3,12 +3,15 @@ extends Node2D
 onready var playerScn = preload("res://scenes/player.tscn")
 onready var bulletScn = preload("res://scenes/bullet.tscn")
 onready var banditoScn = preload("res://scenes/bandito.tscn")
+onready var dollarScn = preload("res://scenes/dollar.tscn")
+onready var deathScn = preload("res://scenes/death_menu.tscn")
 
 var player
 var bullets = []
 var enemies = []
+var dollars = []
 
-enum Thing {BULLET, ENEMY}
+enum Thing {BULLET, ENEMY, DOLLAR}
 
 #trash is stored as type, position
 var trash = []
@@ -16,6 +19,7 @@ var trash = []
 var paused = false
 var hitFlip = false
 var dodgeFlip = false
+var dead = false
 var frameCount = 0
 export (int) var spawnRate = 60
 var rng = RandomNumberGenerator.new()
@@ -35,8 +39,6 @@ func _ready():
 # warning-ignore:unused_argument
 func _physics_process(delta):
 	if !paused:
-		if Input.is_action_just_pressed("reset"):
-			get_tree().reload_current_scene()
 		
 		frameCount+=1
 		if player.shoot:
@@ -47,13 +49,11 @@ func _physics_process(delta):
 			add_child(bullets[-1])
 		
 		if player.hit and !hitFlip:
-			print("ENEMY COLLISION OFF")
 			hitFlip = true
 			if !enemies.empty():
 				for e in enemies:
 					e.set_collision_mask_bit(0, false)
 		elif !player.hit and hitFlip:
-			print("COLLISIONS ON")
 			hitFlip = false
 			if !enemies.empty():
 				for e in enemies:
@@ -73,32 +73,56 @@ func _physics_process(delta):
 		if !enemies.empty():
 			for e in enemies:
 				if !e.alive:
+					var dollar = dollarScn.instance()
+					dollar.position = e.position
+					dollars.append(dollar)
+					add_child(dollars[-1])
 					trash.append(Thing.ENEMY)
 					trash.append(enemies.find(e))
 				else:
 					var dir = getSlope(e.position, player.position)
 					e.setDir(dir)
+		
 		if !bullets.empty():
 			for b in bullets:
 				if !b.alive:
 					trash.append(Thing.BULLET)
 					trash.append(bullets.find(b))
+		
+		if !dollars.empty():
+			for d in dollars:
+				if !d.alive:
+					trash.append(Thing.DOLLAR)
+					trash.append(dollars.find(d))
+		
+		if player.health <= 0:
+			dead = true
+			pauseGame()
+			var deathMenu = deathScn.instance()
+			deathMenu.rect_position += player.position
+			add_child(deathMenu)
+		
 		if frameCount % spawnRate == 0:
 			generateEnemy()
 		cleanUp()
 	
-	if Input.is_action_just_pressed("pause"):
+	if Input.is_action_just_pressed("pause") and !dead:
 		if paused:
 			unpauseGame()
 		elif !paused:
 			pauseGame()
+	
+	if Input.is_action_just_pressed("pause") and dead:
+		get_tree().reload_current_scene()
 
 func getSlope(src, dest):
 	return dest - src
 
 func cleanUp():
-	if !trash.empty():
-		if trash[0] == Thing.BULLET:
+	while !trash.empty():
+		if trash.size() < 2:
+			trash.clear()
+		elif trash[0] == Thing.BULLET:
 			bullets[trash[1]].queue_free()
 			bullets.remove(trash[1])
 			trash.remove(0)
@@ -108,7 +132,13 @@ func cleanUp():
 			enemies.remove(trash[1])
 			trash.remove(0)
 			trash.remove(0)
-		cleanUp()
+		elif trash[0] == Thing.DOLLAR:
+			dollars[trash[1]].queue_free()
+			dollars.remove(trash[1])
+			trash.remove(0)
+			trash.remove(0)
+		else:
+			trash.clear()
 			
 func generateEnemy():
 	enemies.append(banditoScn.instance())

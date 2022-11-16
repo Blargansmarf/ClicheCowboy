@@ -8,6 +8,7 @@ export (float) var invTime = .5
 export (int) var dodgeSpd = 300
 export (int) var dodgeTime = .25
 export (int) var dodgeCooldown = 5
+export (int) var money = 0
 
 var velocity = Vector2()
 var canShoot = true
@@ -43,7 +44,6 @@ func _physics_process(delta):
 				shootDelta = 0.0
 
 		if hit and !invincible:
-			print("OW I HURT")
 			invincible = true
 			health -= 1
 			set_collision_mask_bit(2, false)
@@ -66,13 +66,21 @@ func _physics_process(delta):
 				speed -= dodgeSpd
 				set_collision_mask_bit(2, true)
 			if dodgeDelta >= dodgeCooldown:
-				print("CAN DODGE")
 				canDodge = true
 				dodgeDelta = 0.0
 		
 		player_input()
 		velocity = move_and_slide(velocity)
-			
+		
+		for i in get_slide_count():
+			var collision = get_slide_collision(i)
+			if "Dollar" in collision.collider.name:
+				var dollar = instance_from_id(collision.collider_id)
+				if dollar.alive:
+					dollar.alive = false
+					money += 1
+					print(money)
+				
 
 func player_input():
 	#movement logic
@@ -87,7 +95,6 @@ func player_input():
 		if Input.is_action_pressed("left"):
 			velocity.x -= 1
 	if Input.is_action_just_pressed("dodge") and canDodge and !invincible:
-		print("DODGING")
 		canDodge = false
 		dodging = true
 		speed += dodgeSpd
