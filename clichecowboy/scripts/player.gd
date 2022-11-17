@@ -71,16 +71,6 @@ func _physics_process(delta):
 		
 		player_input()
 		velocity = move_and_slide(velocity)
-		
-		for i in get_slide_count():
-			var collision = get_slide_collision(i)
-			if "Dollar" in collision.collider.name:
-				var dollar = instance_from_id(collision.collider_id)
-				if dollar.alive:
-					dollar.alive = false
-					money += 1
-					print(money)
-				
 
 func player_input():
 	#movement logic

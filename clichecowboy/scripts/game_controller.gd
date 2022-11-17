@@ -92,6 +92,8 @@ func _physics_process(delta):
 		if !dollars.empty():
 			for d in dollars:
 				if !d.alive:
+					player.money += 1
+					print(player.money)
 					trash.append(Thing.DOLLAR)
 					trash.append(dollars.find(d))
 		
