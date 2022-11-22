@@ -5,11 +5,13 @@ onready var bulletScn = preload("res://scenes/bullet.tscn")
 onready var banditoScn = preload("res://scenes/bandito.tscn")
 onready var dollarScn = preload("res://scenes/dollar.tscn")
 onready var deathScn = preload("res://scenes/death_menu.tscn")
+onready var lvlupScn = preload("res://scenes/levelup_menu.tscn")
 
 var player
 var bullets = []
 var enemies = []
 var dollars = []
+var lvlup
 
 enum Thing {BULLET, ENEMY, DOLLAR}
 
@@ -20,6 +22,7 @@ var paused = false
 var hitFlip = false
 var dodgeFlip = false
 var dead = false
+var lvl = false
 var frameCount = 0
 export (int) var spawnRate = 60
 var rng = RandomNumberGenerator.new()
@@ -41,6 +44,7 @@ func _physics_process(delta):
 	if !paused:
 		
 		frameCount+=1
+		
 		if player.shoot:
 			player.shoot = false
 			bullets.append(bulletScn.instance())
@@ -104,11 +108,14 @@ func _physics_process(delta):
 			deathMenu.rect_position += player.position
 			add_child(deathMenu)
 		
+		if player.money >= 10:
+			levelup()
+		
 		if frameCount % spawnRate == 0:
 			generateEnemy()
 		cleanUp()
 	
-	if Input.is_action_just_pressed("pause") and !dead:
+	if Input.is_action_just_pressed("pause") and !dead and !lvl:
 		if paused:
 			unpauseGame()
 		elif !paused:
@@ -180,3 +187,10 @@ func unpauseGame():
 	if !enemies.empty():
 		for e in enemies:
 			e.paused = false
+
+func levelup():
+	pauseGame()
+	lvl = true
+	lvlup = lvlupScn.instance()
+	lvlup.position = player.position - screenSize/2
+	add_child(lvlup)
