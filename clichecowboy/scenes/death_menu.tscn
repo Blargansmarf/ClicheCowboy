@@ -1,6 +1,5 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=3 format=2]
 
-[ext_resource path="res://scripts/death_menu.gd" type="Script" id=1]
 [ext_resource path="res://fonts/Marlboro.ttf" type="DynamicFontData" id=2]
 
 [sub_resource type="DynamicFont" id=1]
@@ -9,18 +8,17 @@ outline_size = 5
 outline_color = Color( 0, 0, 0, 1 )
 font_data = ExtResource( 2 )
 
-[node name="Death Menu" type="Label"]
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-margin_left = -498.0
-margin_top = -117.5
-margin_right = 498.0
-margin_bottom = 117.5
+[node name="death_menu" type="Node2D"]
+z_index = 20
+z_as_relative = false
+
+[node name="Label" type="Label" parent="."]
+margin_left = 130.0
+margin_top = 200.0
+margin_right = 911.0
+margin_bottom = 383.0
 custom_fonts/font = SubResource( 1 )
 text = "You have died
 Press Esc to restart..."
 align = 1
 valign = 1
-script = ExtResource( 1 )
