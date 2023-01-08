@@ -12,6 +12,7 @@ var player
 var bullets = []
 var enemies = []
 var dollars = []
+var cappedSkills = []
 var hud
 var lvlup
 
@@ -250,10 +251,12 @@ func applyLevelUp():
 		1:
 			player.shootCooldown += player.shootCooldownLvl
 			if player.shootCooldown < .15:
+				cappedSkills.append(1)
 				player.shootCooldown = .15
 		2:
 			player.dodgeCooldown += player.dodgeCooldownLvl
 			if player.dodgeCooldown < 1:
+				cappedSkills.append(2)
 				player.dodgeCooldown = 1
 		3:
 			player.bulletSpeed += player.bulletSpeedLvl

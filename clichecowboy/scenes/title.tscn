@@ -80,7 +80,7 @@ text = "Space to start"
 position = Vector2( 520, 352 )
 scale = Vector2( 2, 2 )
 frames = SubResource( 3 )
-frame = 3
+frame = 2
 playing = true
 
 [node name="AnimatedSprite" type="AnimatedSprite" parent="dummyplayer"]
@@ -91,7 +91,7 @@ frames = SubResource( 4 )
 position = Vector2( 214, 295 )
 scale = Vector2( 2, 2 )
 frames = SubResource( 5 )
-frame = 3
+frame = 2
 playing = true
 flip_h = true
 
@@ -99,7 +99,7 @@ flip_h = true
 position = Vector2( 162, 385 )
 scale = Vector2( 2, 2 )
 frames = SubResource( 5 )
-frame = 3
+frame = 2
 playing = true
 flip_h = true
 
@@ -107,7 +107,7 @@ flip_h = true
 position = Vector2( 266, 447 )
 scale = Vector2( 2, 2 )
 frames = SubResource( 5 )
-frame = 2
+frame = 1
 playing = true
 flip_h = true
 
@@ -122,11 +122,11 @@ playing = true
 position = Vector2( 889, 381 )
 scale = Vector2( 2, 2 )
 frames = SubResource( 5 )
-frame = 1
 playing = true
 
 [node name="dummyenemy5" type="AnimatedSprite" parent="."]
 position = Vector2( 786, 451 )
 scale = Vector2( 2, 2 )
 frames = SubResource( 5 )
+frame = 3
 playing = true
