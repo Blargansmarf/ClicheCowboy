@@ -27,6 +27,8 @@ var dodgeFlip = false
 var dead = false
 var lvl = false
 var frameCount = 0
+var windowTopLeft
+var windowBotRight
 
 export (int) var spawnRate = 60
 export (int) var enemySpeed = 50
@@ -49,6 +51,8 @@ onready var screenSize = get_viewport_rect().size
 func _ready():
 	player = playerScn.instance()
 	player.position = screenSize / 2
+	windowTopLeft = Vector2(0,0)
+	windowBotRight = screenSize
 	hud = hudScn.instance()
 	player.add_child(hud)
 	hud.global_position = Vector2(0, 0)
@@ -58,100 +62,132 @@ func _ready():
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _physics_process(delta):
+func _physics_process(_delta):
 	if !paused:
 		
 		frameCount+=1
 		
-		if player.shoot:
-			player.shoot = false
-			bullets.append(bulletScn.instance())
-			bullets[-1].position = player.get_node("GunSprite/TipArea/Tip").global_position
-			bullets[-1].init_stats(player.bulletSpeed, player.shootDir, player.bulletDamage, player.bulletLife)
-			add_child(bullets[-1])
+		playerShoot()
 		
-		if player.hit and !hitFlip:
-			hitFlip = true
-			hud.gotHit()
-			if !enemies.empty():
-				for e in enemies:
-					e.set_collision_mask_bit(0, false)
-		elif !player.hit and hitFlip:
-			hitFlip = false
-			if !enemies.empty():
-				for e in enemies:
-					e.set_collision_mask_bit(0, true)
+		checkPlayerHit()
 		
-		if player.dodging and !dodgeFlip:
-			dodgeFlip = true
-			hud.dodgeUsed()
-			if !enemies.empty():
-				for e in enemies:
-					e.set_collision_mask_bit(0, false)
-		elif !player.dodging and dodgeFlip:
-			dodgeFlip = false
-			if !enemies.empty():
-				for e in enemies:
-					e.set_collision_mask_bit(0, true)
+		checkPlayerDodge()
 		
-		if !enemies.empty():
-			for e in enemies:
-				if !e.alive:
-					var dollar = dollarScn.instance()
-					dollar.position = e.position
-					dollars.append(dollar)
-					add_child(dollars[-1])
-					trash.append(Thing.ENEMY)
-					trash.append(enemies.find(e))
-				else:
-					var dir = getSlope(e.position, player.position)
-					e.setDir(dir)
+		updateWindowBounds()
 		
-		if !bullets.empty():
-			for b in bullets:
-				if !b.alive:
-					trash.append(Thing.BULLET)
-					trash.append(bullets.find(b))
+		updateEnemies()
 		
-		if !dollars.empty():
-			for d in dollars:
-				if !d.alive:
-					player.money += 1
-					hud.updateDollars(player.moneyCap - player.money)
-					trash.append(Thing.DOLLAR)
-					trash.append(dollars.find(d))
+		updateBullets()
 		
-		if player.health <= 0:
-			dead = true
-			pauseGame()
-			var deathMenu = deathScn.instance()
-			deathMenu.position += player.position - screenSize/2
-			add_child(deathMenu)
+		updateDollars()
 		
-		if player.money >= player.moneyCap:
-			levelup()
+		checkForDeath()
 		
-		if frameCount % spawnRate == 0:
-			generateEnemy()
+		checkForLevelUp()
 		
-		if player.canDodge:
-			hud.dodgeReady()
+		spawnEnemy()
+		
+		cullObjects()
+		
+		readyDodge()
 		
 		scaleEnemies()
 		cleanUp()
 	
+	processLevelUp()
+	
+	checkForPause()
+	
+	checkForRestart()
+
+func playerShoot():
+	if player.shoot:
+		player.shoot = false
+		bullets.append(bulletScn.instance())
+		bullets[-1].position = player.get_node("GunSprite/TipArea/Tip").global_position
+		bullets[-1].init_stats(player.bulletSpeed, player.shootDir, player.bulletDamage, player.bulletLife)
+		add_child(bullets[-1])
+
+func checkPlayerHit():
+	if player.hit and !hitFlip:
+		hitFlip = true
+		hud.gotHit()
+		if !enemies.empty():
+			for e in enemies:
+				e.set_collision_mask_bit(0, false)
+	elif !player.hit and hitFlip:
+		hitFlip = false
+		if !enemies.empty():
+			for e in enemies:
+				e.set_collision_mask_bit(0, true)
+
+func checkPlayerDodge():
+	if player.dodging and !dodgeFlip:
+		dodgeFlip = true
+		hud.dodgeUsed()
+		if !enemies.empty():
+			for e in enemies:
+				e.set_collision_mask_bit(0, false)
+	elif !player.dodging and dodgeFlip:
+		dodgeFlip = false
+		if !enemies.empty():
+			for e in enemies:
+				e.set_collision_mask_bit(0, true)
+
+func updateEnemies():
+	if !enemies.empty():
+		for e in enemies:
+			if !e.alive:
+				var dollar = dollarScn.instance()
+				dollar.position = e.position
+				dollars.append(dollar)
+				add_child(dollars[-1])
+				trash.append(Thing.ENEMY)
+				trash.append(enemies.find(e))
+			else:
+				var dir = getSlope(e.position, player.position)
+				e.setDir(dir)
+
+func updateBullets():
+	if !bullets.empty():
+		for b in bullets:
+			if !b.alive:
+				trash.append(Thing.BULLET)
+				trash.append(bullets.find(b))
+
+func updateDollars():
+	if !dollars.empty():
+		for d in dollars:
+			if !d.alive:
+				player.money += 1
+				hud.updateDollars(player.moneyCap - player.money)
+				trash.append(Thing.DOLLAR)
+				trash.append(dollars.find(d))
+
+func checkForDeath():
+	if player.health <= 0:
+		dead = true
+		pauseGame()
+		var deathMenu = deathScn.instance()
+		deathMenu.position += player.position - screenSize/2
+		add_child(deathMenu)
+
+func checkForLevelUp():
+	if player.money >= player.moneyCap:
+		levelup()
+
+func processLevelUp():
 	if lvl:
 		if lvlup.choice > -1:
 			applyLevelUp()
-	
-	if Input.is_action_just_pressed("pause") and !dead and !lvl:
-		if paused:
-			unpauseGame()
-		elif !paused:
-			pauseGame()
-	
-	if Input.is_action_just_pressed("pause") and dead:
-		get_tree().reload_current_scene()
+
+func spawnEnemy():
+	if frameCount % spawnRate == 0:
+		generateEnemy()
+
+func readyDodge():
+	if player.canDodge:
+		hud.dodgeReady()
 
 func getSlope(src, dest):
 	return dest - src
@@ -186,7 +222,18 @@ func cleanUp():
 			dollarCleaned += 1
 		else:
 			trash.clear()
-			
+
+func checkForPause():
+	if Input.is_action_just_pressed("pause") and !dead and !lvl:
+		if paused:
+			unpauseGame()
+		elif !paused:
+			pauseGame()
+
+func checkForRestart():
+	if Input.is_action_just_pressed("pause") and dead:
+		get_tree().reload_current_scene()
+
 func generateEnemy():
 	enemies.append(banditoScn.instance())
 	enemies[-1].initStats(enemySpeed, enemyHealth)
@@ -294,3 +341,13 @@ func scaleEnemies():
 	if frameCount % enemySpeedFrame == 0:
 		enemySpeed += enemySpeedInc
 		#print("Enemy speed increased")
+
+func updateWindowBounds():
+	windowTopLeft = player.position - screenSize/2
+	windowBotRight = player.position + screenSize/2
+
+func cullObjects():
+	if !enemies.empty():
+		for e in enemies:
+			if e.position.x < windowTopLeft.x:
+				print("ME OUT")

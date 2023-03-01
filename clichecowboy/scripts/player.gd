@@ -1,14 +1,14 @@
 extends KinematicBody2D
 
 export (int) var speed = 100
-export (float) var shootCooldown = 1
+export (float) var shootCooldown = 1.0
 export (int) var health = 3
 export (int) var maxHealth = 3
 export (int) var invSpd = 250
 export (float) var invTime = .5
 export (int) var dodgeSpd = 300
 export (float) var dodgeTime = .25
-export (float) var dodgeCooldown = 5
+export (float) var dodgeCooldown = 5.0
 export (int) var money = 0
 export (int) var moneyCap = 2
 export (int) var bulletSpeed = 200
@@ -18,7 +18,7 @@ export (int) var bulletLife = 2
 export (int) var speedLvl = 30
 export (float) var shootCooldownLvl = -.15
 export (int) var healthLvl = 1
-export (int) var invTimeLvl = .5
+export (float) var invTimeLvl = .5
 export (float) var dodgeTimeLvl = .1
 export (float) var dodgeCooldownLvl = -.75
 export (int) var bulletSpeedLvl = 50
