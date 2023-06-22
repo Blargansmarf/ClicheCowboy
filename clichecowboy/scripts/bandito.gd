@@ -1,14 +1,14 @@
-extends KinematicBody2D
+extends CharacterBody2D
 
-export (int) var speed = 50
-export (int) var health = 1
+@export (int) var speed = 50
+@export (int) var health = 1
 
 var velocity = Vector2()
 var alive = true
 var paused = false
 
-onready var myCollider = $CollisionShape2D
-onready var mySprite = $AnimatedSprite
+@onready var myCollider = $CollisionShape2D
+@onready var mySprite = $AnimatedSprite2D
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -32,9 +32,11 @@ func _physics_process(_delta):
 		
 		velocity = velocity.normalized() * speed
 		mySprite.flip_h = velocity.x > 0
-		velocity = move_and_slide(velocity)
+		set_velocity(velocity)
+		move_and_slide()
+		velocity = velocity
 		
-		for i in get_slide_count():
+		for i in get_slide_collision_count():
 			var collision = get_slide_collision(i)
 			if "Player" in collision.collider.name:
 				var playerInstance = instance_from_id(collision.collider_id)

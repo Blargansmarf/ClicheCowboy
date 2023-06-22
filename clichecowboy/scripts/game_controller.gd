@@ -1,12 +1,12 @@
 extends Node2D
 
-onready var playerScn = preload("res://scenes/player.tscn")
-onready var bulletScn = preload("res://scenes/bullet.tscn")
-onready var banditoScn = preload("res://scenes/bandito.tscn")
-onready var dollarScn = preload("res://scenes/dollar.tscn")
-onready var deathScn = preload("res://scenes/death_menu.tscn")
-onready var lvlupScn = preload("res://scenes/levelup_menu.tscn")
-onready var hudScn = preload("res://scenes/HUD.tscn")
+@onready var playerScn = preload("res://scenes/player.tscn")
+@onready var bulletScn = preload("res://scenes/bullet.tscn")
+@onready var banditoScn = preload("res://scenes/bandito.tscn")
+@onready var dollarScn = preload("res://scenes/dollar.tscn")
+@onready var deathScn = preload("res://scenes/death_menu.tscn")
+@onready var lvlupScn = preload("res://scenes/levelup_menu.tscn")
+@onready var hudScn = preload("res://scenes/HUD.tscn")
 
 var player
 var bullets = []
@@ -30,30 +30,30 @@ var frameCount = 0
 var windowTopLeft
 var windowBotRight
 
-export (int) var spawnRate = 60
-export (int) var enemySpeed = 50
-export (int) var enemyHealth = 1
+@export (int) var spawnRate = 60
+@export (int) var enemySpeed = 50
+@export (int) var enemyHealth = 1
 
-export (int) var spawnRateInc = -1
-export (int) var enemySpeedInc = 1
-export (int) var enemyHealthInc = 1
+@export (int) var spawnRateInc = -1
+@export (int) var enemySpeedInc = 1
+@export (int) var enemyHealthInc = 1
 
 #60 frames = 1 sec
-export (int) var spawnRateFrame = 600
-export (int) var enemySpeedFrame = 180
-export (int) var enemyHealthFrame = 1800
+@export (int) var spawnRateFrame = 600
+@export (int) var enemySpeedFrame = 180
+@export (int) var enemyHealthFrame = 1800
 
 var rng = RandomNumberGenerator.new()
 
-onready var screenSize = get_viewport_rect().size
+@onready var screenSize = get_viewport_rect().size
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	player = playerScn.instance()
+	player = playerScn.instantiate()
 	player.position = screenSize / 2
 	windowTopLeft = Vector2(0,0)
 	windowBotRight = screenSize
-	hud = hudScn.instance()
+	hud = hudScn.instantiate()
 	player.add_child(hud)
 	hud.global_position = Vector2(0, 0)
 	add_child(player)
@@ -103,7 +103,7 @@ func _physics_process(_delta):
 func playerShoot():
 	if player.shoot:
 		player.shoot = false
-		bullets.append(bulletScn.instance())
+		bullets.append(bulletScn.instantiate())
 		bullets[-1].position = player.get_node("GunSprite/TipArea/Tip").global_position
 		bullets[-1].init_stats(player.bulletSpeed, player.shootDir, player.bulletDamage, player.bulletLife)
 		add_child(bullets[-1])
@@ -112,33 +112,33 @@ func checkPlayerHit():
 	if player.hit and !hitFlip:
 		hitFlip = true
 		hud.gotHit()
-		if !enemies.empty():
+		if !enemies.is_empty():
 			for e in enemies:
-				e.set_collision_mask_bit(0, false)
+				e.set_collision_mask_value(0, false)
 	elif !player.hit and hitFlip:
 		hitFlip = false
-		if !enemies.empty():
+		if !enemies.is_empty():
 			for e in enemies:
-				e.set_collision_mask_bit(0, true)
+				e.set_collision_mask_value(0, true)
 
 func checkPlayerDodge():
 	if player.dodging and !dodgeFlip:
 		dodgeFlip = true
 		hud.dodgeUsed()
-		if !enemies.empty():
+		if !enemies.is_empty():
 			for e in enemies:
-				e.set_collision_mask_bit(0, false)
+				e.set_collision_mask_value(0, false)
 	elif !player.dodging and dodgeFlip:
 		dodgeFlip = false
-		if !enemies.empty():
+		if !enemies.is_empty():
 			for e in enemies:
-				e.set_collision_mask_bit(0, true)
+				e.set_collision_mask_value(0, true)
 
 func updateEnemies():
-	if !enemies.empty():
+	if !enemies.is_empty():
 		for e in enemies:
 			if !e.alive:
-				var dollar = dollarScn.instance()
+				var dollar = dollarScn.instantiate()
 				dollar.position = e.position
 				dollars.append(dollar)
 				add_child(dollars[-1])
@@ -149,14 +149,14 @@ func updateEnemies():
 				e.setDir(dir)
 
 func updateBullets():
-	if !bullets.empty():
+	if !bullets.is_empty():
 		for b in bullets:
 			if !b.alive:
 				trash.append(Thing.BULLET)
 				trash.append(bullets.find(b))
 
 func updateDollars():
-	if !dollars.empty():
+	if !dollars.is_empty():
 		for d in dollars:
 			if !d.alive:
 				player.money += 1
@@ -168,7 +168,7 @@ func checkForDeath():
 	if player.health <= 0:
 		dead = true
 		pauseGame()
-		var deathMenu = deathScn.instance()
+		var deathMenu = deathScn.instantiate()
 		deathMenu.position += player.position - screenSize/2
 		add_child(deathMenu)
 
@@ -196,7 +196,7 @@ func cleanUp():
 	var bulletCleaned = 0
 	var enemyCleaned = 0
 	var dollarCleaned = 0
-	while !trash.empty():
+	while !trash.is_empty():
 		if trash.size() < 2:
 			trash.clear()
 		if trash[0] == Thing.BULLET:
@@ -235,7 +235,7 @@ func checkForRestart():
 		get_tree().reload_current_scene()
 
 func generateEnemy():
-	enemies.append(banditoScn.instance())
+	enemies.append(banditoScn.instantiate())
 	enemies[-1].initStats(enemySpeed, enemyHealth)
 	var loc = rng.randi_range(0, 3)
 	var pos = Vector2()
@@ -250,17 +250,17 @@ func generateEnemy():
 		pos = Vector2(-10 + playerPosDiff.x, rng.randi_range(0, screenSize.y) + playerPosDiff.y)
 	enemies[-1].position = pos
 	if hitFlip or dodgeFlip:
-		enemies[-1].set_collision_mask_bit(0, false)
+		enemies[-1].set_collision_mask_value(0, false)
 	add_child(enemies[-1])
 	
 func pauseGame():
 	paused = true
 	player.paused = true
 	hud.paused = true
-	if !bullets.empty():
+	if !bullets.is_empty():
 		for b in bullets:
 			b.paused = true
-	if !enemies.empty():
+	if !enemies.is_empty():
 		for e in enemies:
 			e.paused = true
 	
@@ -268,17 +268,17 @@ func unpauseGame():
 	paused = false
 	player.paused = false
 	hud.paused = false
-	if !bullets.empty():
+	if !bullets.is_empty():
 		for b in bullets:
 			b.paused = false
-	if !enemies.empty():
+	if !enemies.is_empty():
 		for e in enemies:
 			e.paused = false
 
 func levelup():
 	pauseGame()
 	lvl = true
-	lvlup = lvlupScn.instance()
+	lvlup = lvlupScn.instantiate()
 	lvlup.position = player.position - screenSize/2
 	add_child(lvlup)
 
@@ -347,7 +347,9 @@ func updateWindowBounds():
 	windowBotRight = player.position + screenSize/2
 
 func cullObjects():
-	if !enemies.empty():
+	if !enemies.is_empty():
 		for e in enemies:
 			if e.position.x < windowTopLeft.x:
-				print("ME OUT")
+				e.visible = false
+			else:
+				e.visible = true

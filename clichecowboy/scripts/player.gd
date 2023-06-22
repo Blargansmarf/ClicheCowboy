@@ -1,30 +1,30 @@
-extends KinematicBody2D
+extends CharacterBody2D
 
-export (int) var speed = 100
-export (float) var shootCooldown = 1.0
-export (int) var health = 3
-export (int) var maxHealth = 3
-export (int) var invSpd = 250
-export (float) var invTime = .5
-export (int) var dodgeSpd = 300
-export (float) var dodgeTime = .25
-export (float) var dodgeCooldown = 5.0
-export (int) var money = 0
-export (int) var moneyCap = 2
-export (int) var bulletSpeed = 200
-export (int) var bulletDamage = 1
-export (int) var bulletLife = 2
+@export (int) var speed = 100
+@export (float) var shootCooldown = 1.0
+@export (int) var health = 3
+@export (int) var maxHealth = 3
+@export (int) var invSpd = 250
+@export (float) var invTime = .5
+@export (int) var dodgeSpd = 300
+@export (float) var dodgeTime = .25
+@export (float) var dodgeCooldown = 5.0
+@export (int) var money = 0
+@export (int) var moneyCap = 2
+@export (int) var bulletSpeed = 200
+@export (int) var bulletDamage = 1
+@export (int) var bulletLife = 2
 
-export (int) var speedLvl = 30
-export (float) var shootCooldownLvl = -.15
-export (int) var healthLvl = 1
-export (float) var invTimeLvl = .5
-export (float) var dodgeTimeLvl = .1
-export (float) var dodgeCooldownLvl = -.75
-export (int) var bulletSpeedLvl = 50
-export (float) var moneyCapLvl = 1.45
-export (int) var bulletDamageLvl = 1
-export (float) var bulletLifeLvl = .75
+@export (int) var speedLvl = 30
+@export (float) var shootCooldownLvl = -.15
+@export (int) var healthLvl = 1
+@export (float) var invTimeLvl = .5
+@export (float) var dodgeTimeLvl = .1
+@export (float) var dodgeCooldownLvl = -.75
+@export (int) var bulletSpeedLvl = 50
+@export (float) var moneyCapLvl = 1.45
+@export (int) var bulletDamageLvl = 1
+@export (float) var bulletLifeLvl = .75
 
 var velocity = Vector2()
 var canShoot = true
@@ -39,8 +39,8 @@ var canDodge = true
 var dodging = false
 var dodgeDelta = 0.0
 
-onready var myCollider = $CollisionShape2D
-onready var mySprite = $BodySprite
+@onready var myCollider = $CollisionShape2D
+@onready var mySprite = $BodySprite
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -62,7 +62,7 @@ func _physics_process(delta):
 		if hit and !invincible:
 			invincible = true
 			health -= 1
-			set_collision_mask_bit(2, false)
+			set_collision_mask_value(2, false)
 			speed += invSpd
 			
 
@@ -73,20 +73,22 @@ func _physics_process(delta):
 				invincible = false
 				speed -= invSpd
 				hitDelta = 0.0
-				set_collision_mask_bit(2, true)
+				set_collision_mask_value(2, true)
 		
 		if !canDodge:
 			dodgeDelta += delta
 			if dodging and dodgeDelta >= dodgeTime:
 				dodging = false
 				speed -= dodgeSpd
-				set_collision_mask_bit(2, true)
+				set_collision_mask_value(2, true)
 			if dodgeDelta >= dodgeCooldown:
 				canDodge = true
 				dodgeDelta = 0.0
 		
 		player_input()
-		velocity = move_and_slide(velocity)
+		set_velocity(velocity)
+		move_and_slide()
+		velocity = velocity
 	if paused:
 		if mySprite.playing:
 			mySprite.stop()
@@ -107,7 +109,7 @@ func player_input():
 		canDodge = false
 		dodging = true
 		speed += dodgeSpd
-		set_collision_mask_bit(2, false)
+		set_collision_mask_value(2, false)
 	
 	if velocity.length() > 0:
 		velocity = velocity.normalized() * speed

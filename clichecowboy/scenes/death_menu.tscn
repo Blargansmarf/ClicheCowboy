@@ -1,8 +1,8 @@
 [gd_scene load_steps=3 format=2]
 
-[ext_resource path="res://fonts/Marlboro.ttf" type="DynamicFontData" id=2]
+[ext_resource path="res://fonts/Marlboro.ttf" type="FontFile" id=2]
 
-[sub_resource type="DynamicFont" id=1]
+[sub_resource type="FontFile" id=1]
 size = 100
 outline_size = 5
 outline_color = Color( 0, 0, 0, 1 )
@@ -13,10 +13,10 @@ z_index = 20
 z_as_relative = false
 
 [node name="Label" type="Label" parent="."]
-margin_left = 130.0
-margin_top = 200.0
-margin_right = 911.0
-margin_bottom = 383.0
+offset_left = 130.0
+offset_top = 200.0
+offset_right = 911.0
+offset_bottom = 383.0
 custom_fonts/font = SubResource( 1 )
 text = "You have died
 Press Esc to restart..."

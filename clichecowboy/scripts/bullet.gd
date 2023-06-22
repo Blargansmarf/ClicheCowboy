@@ -1,4 +1,4 @@
-extends KinematicBody2D
+extends CharacterBody2D
 
 var speed = 200
 var alive = false
@@ -25,9 +25,11 @@ func _physics_process(delta):
 			alive = false
 			pass
 		velocity = velocity.normalized() * speed
-		velocity = move_and_slide(velocity)
+		set_velocity(velocity)
+		move_and_slide()
+		velocity = velocity
 		
-		for i in get_slide_count():
+		for i in get_slide_collision_count():
 			var collision = get_slide_collision(i)
 			if "Bandito" in collision.collider.name:
 				alive = false

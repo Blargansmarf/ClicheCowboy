@@ -1,9 +1,9 @@
 extends Node2D
 
-onready var button0 = $Button0
-onready var button1 = $Button1
-onready var button2 = $Button2
-onready var button3 = $Button3
+@onready var button0 = $Button0
+@onready var button1 = $Button1
+@onready var button2 = $Button2
+@onready var button3 = $Button3
 
 var option0
 var option1
@@ -116,10 +116,10 @@ func assign_buttons():
 		7:
 			setbutton_fullheal(button3)
 	
-	button0.connect("pressed", self, "_button0_clicked")
-	button1.connect("pressed", self, "_button1_clicked")
-	button2.connect("pressed", self, "_button2_clicked")
-	button3.connect("pressed", self, "_button3_clicked")
+	button0.connect("pressed",Callable(self,"_button0_clicked"))
+	button1.connect("pressed",Callable(self,"_button1_clicked"))
+	button2.connect("pressed",Callable(self,"_button2_clicked"))
+	button3.connect("pressed",Callable(self,"_button3_clicked"))
 
 func setbutton_movespd(btn):
 	btn.text = "Move Speed +"

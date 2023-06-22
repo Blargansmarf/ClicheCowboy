@@ -1,14 +1,14 @@
 extends Node2D
 
-onready var health0 = $health0
-onready var health1 = $health1
-onready var health2 = $health2
+@onready var health0 = $health0
+@onready var health1 = $health1
+@onready var health2 = $health2
 
-onready var dodgeInd = $dodgeInd
+@onready var dodgeInd = $dodgeInd
 
-onready var dollarstolvl = $dollarstolevel
+@onready var dollarstolvl = $dollarstolevel
 
-onready var timer = $timer
+@onready var timer = $timer
 
 var time = 0
 var paused = false

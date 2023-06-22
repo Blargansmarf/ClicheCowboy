@@ -1,6 +1,6 @@
 extends Area2D
 
-onready var alive = true
+@onready var alive = true
 
 func _physics_process(_delta):
 	if alive:
